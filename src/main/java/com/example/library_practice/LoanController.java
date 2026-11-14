@@ -1,5 +1,6 @@
 package com.example.library_practice;
 
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -26,6 +27,12 @@ public class LoanController {
 
         long loanID = loans.borrow(request.bookID(), request.readerID());
         return new BorrowResponse(loanID);
+    }
+
+    @PostMapping("/loans/{id}/return")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void returnLoan(@PathVariable("id") long loanID) {
+        loans.returnLoan(loanID);
     }
 
     public record BorrowRequest(String bookID, String readerID) {}
