@@ -57,4 +57,36 @@ public class LoanService {
         }
         return loanID.longValue();
     }
+
+    @Transactional
+    public void returnLoan(long loanID) {
+        int updated = jdbc.update(
+                "UPDATE loan SET loanStatus = 'RETURNED' WHERE loanID = ? AND loanStatus = 'BORROWED'",
+                loanID);
+    
+        if (updated == 0) {
+            int count = jdbc.queryForObject(
+                    "SELECT COUNT(*) FROM loan WHERE loanID = ?",
+                    Integer.class,
+                    loanID);
+    
+            if (count == 0) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Loan not found");
+            }
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Loan already returned");
+        }
+    
+        String bookID = jdbc.queryForObject(
+                "SELECT bookID FROM loan WHERE loanID = ?",
+                String.class,
+                loanID);
+    
+        int restocked = jdbc.update(
+                "UPDATE book SET stockNum = stockNum + 1 WHERE bookID = ?",
+                bookID);
+    
+        if (restocked != 1) {
+            throw new IllegalStateException("Could not restore book stock");
+        }
+    }
 }
