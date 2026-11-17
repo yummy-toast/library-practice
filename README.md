@@ -17,3 +17,7 @@
 
     redis-cli -p 26379 HGETALL library:book:details:B001
     redis-cli -p 26379 TTL library:book:details:B001
+
+## 接口验收
+
+参见[借阅与归还验收](ACCEPTANCE.md)，按步骤验证库存不足、重复归还、并发借阅和事务回滚。
